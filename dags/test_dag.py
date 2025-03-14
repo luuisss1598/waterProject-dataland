@@ -18,7 +18,7 @@ default_args = {
 }
 
 dag = DAG(
-    'open_weather_etl',
+    'test_dag',
     default_args=default_args,
     description='An ETL for testing',
     schedule_interval=timedelta(days=1),
