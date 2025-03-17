@@ -2,15 +2,13 @@ water_dataland:
   target: dev
   outputs:
     dev:
-      type: 
+      type: postgres
       host: 
       user: 
       password: 
       port: 5432
-      dbname: 
+      dbname: ingest
       schema: temp
       threads: 8
       connect_timeout: 10
       sslmode: require
-  
-  
