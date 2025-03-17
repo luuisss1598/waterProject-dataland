@@ -14,5 +14,4 @@ def setup_logging():
 
 logger = setup_logging();
 
-logger.info("INFO LOG")
-logger.error("INFO LOG")
+

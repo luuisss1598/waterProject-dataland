@@ -3,7 +3,7 @@ from airflow.operators.python import PythonOperator
 from datetime import datetime, timedelta
 
 from extractors.open_weather_api import extract_data
-from transformations.open_weather_trasnform import transform_data
+from transformations.open_weather_transform import transform_data
 from loaders.open_weather_data_load import load_data
 
 # define default arguments for the DAG

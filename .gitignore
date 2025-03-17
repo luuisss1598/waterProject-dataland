@@ -1,2 +1,6 @@
 .env
 __pycache__/
+.dist
+tempCodeRunnerFile.py
+logs/*
+!logs/.gitkeep

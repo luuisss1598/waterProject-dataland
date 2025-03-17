@@ -4,7 +4,7 @@ from airflow.operators.python import PythonOperator
 from utils.logging_config import logger
 
 from extractors.open_weather_api import extract_data
-from transformations.open_weather_trasnform import transform_data
+from transformations.open_weather_transform import transform_data
 from loaders.open_weather_data_load import load_data
 
 
@@ -22,7 +22,7 @@ with DAG(
     'open_weather_etl',
     default_args=default_args,
     description='A dag to extract data from OpenWeatherAPI every 5 minutes',
-    schedule_interval=timedelta(minutes=5),
+    schedule_interval=timedelta(minutes=1),
     start_date=datetime(2025, 3, 3),
     catchup=False,
     tags=['weather']
