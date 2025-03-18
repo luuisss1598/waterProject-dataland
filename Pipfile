@@ -4,7 +4,6 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-pandas = "==2.2.3"
 dbt-core = "==1.9.3"
 dbt-postgres = "==1.9.0"
 setuptools = "*"
@@ -13,6 +12,7 @@ psycopg2-binary = "==2.9.10"
 sqlalchemy = "==1.4.54"
 apache-airflow = "==2.10.5"
 python-dotenv = "==1.0.1"
+pandas = "==2.1.4"
 
 [dev-packages]
 

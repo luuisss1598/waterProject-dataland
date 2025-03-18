@@ -11,6 +11,9 @@ Function to transform data from OpenWeather API
 """
 Dataframe = NewType('Dataframe', pd.DataFrame)
 
+def transform_data():
+    pass
+
 def transform_open_weather_data_from_api(extracted_data_open_weather) -> Dataframe:
     # build the dataframe, but we need to flatten out the json data first
     logger.info('Converting JSON into Pandas Dataframe..')
@@ -19,8 +22,9 @@ def transform_open_weather_data_from_api(extracted_data_open_weather) -> Datafra
         _pk = generate_md5_key(extracted_data_open_weather['id'], extracted_data_open_weather['extracted_at'])
         extracted_data_open_weather['_pk'] = _pk
         
-        df = pd.DataFrame([extracted_data_open_weather])
-        return df
+        data_extracted = pd.DataFrame([extracted_data_open_weather])
+        
+        return data_extracted
     
     except Exception as err:
         logger.error('Error creating Pandas Dataframe')
@@ -32,5 +36,6 @@ def transform_open_weather_data_from_api(extracted_data_open_weather) -> Datafra
 # transformed_data = open_weather.get_daily_open_weather_data(zip_code=zip_code)
 # data = transform_open_weather_data_from_api(extracted_data_open_weather=transformed_data)
 
+# data = data.to_json('')
 # # print(json.dumps(transformed_data, indent=4))
 # print(data)
