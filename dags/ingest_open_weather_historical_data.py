@@ -5,7 +5,7 @@ from utils.logging_config import logger
 import json 
 from datetime import datetime, timedelta
 import pandas as pd
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, text
 import os
 import uuid
 
@@ -53,8 +53,19 @@ def split_csv_into_batches(**context):
 def load_batches_to_postgres(**context):
     meta_data =  context['ti'].xcom_pull(task_ids='split_csv_file')
     logger.info(f'Pulled metadata: {json.dumps(meta_data, indent=4)}')
-    # context['ti'].xcom_push(key='loaded_to_postgres', value=meta_data)
-
+    
+    password = get_env('NEON_POSTGRES_PASSWORD')
+    user = get_env('NEON_POSTGRES_USER')
+    host = get_env('NEON_POSTGRES_HOST')
+    port = get_env('NEON_POSTGRES_PORT')
+    database = get_env('NEON_POSTGRES_DB_INGEST')
+    
+    conn_str = f'postgresql+psycopg2://{user}:{password}@{host}:{port}/{database}'
+    
+    engine = create_engine(conn_str)
+    
+    
+    
     return meta_data
 
 

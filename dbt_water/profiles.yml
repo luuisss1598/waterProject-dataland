@@ -2,12 +2,12 @@ water_dataland:
   target: dev
   outputs:
     dev:
-      type: 
-      host: 
-      user: 
-      password: 
-      port: 5432
-      dbname: ingest
+      type: postgres
+      host: "{{ env_var('NEON_POSTGRES_HOST') }}"
+      user: "{{ env_var('NEON_POSTGRES_USER') }}"
+      password: "{{ env_var('NEON_POSTGRES_PASSWORD') }}"
+      port: "{{ env_var('NEON_POSTGRES_PORT') | int }}"
+      dbname: "{{ env_var('NEON_POSTGRES_DB_INGEST') }}"
       schema: temp
       threads: 8
       connect_timeout: 10
