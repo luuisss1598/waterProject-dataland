@@ -61,22 +61,22 @@ class OpenWeatherAPI:
             logger.info(f'Request failed: {req_error}')
             raise 
     
-    def get_historical_open_weather_data(self, zip_code: str) -> Dict:
-        """Fetch historical data"""
-        open_weather_data_url = f'https://history.openweathermap.org/data/2.5/history/city?lat={self.lat}&lon={self.lon}&type=hour&appid={self.open_weather_api}'
+    # def get_historical_open_weather_data(self, zip_code: str) -> Dict:
+    #     """Fetch historical data"""
+    #     open_weather_data_url = f'https://history.openweathermap.org/data/2.5/history/city?lat={self.lat}&lon={self.lon}&type=hour&appid={self.open_weather_api}'
         
-        try:
-            response = requests.get(url=open_weather_data_url, timeout=5)
-            response.raise_for_status() #if status != 200, raise exception
+    #     try:
+    #         response = requests.get(url=open_weather_data_url, timeout=5)
+    #         response.raise_for_status() #if status != 200, raise exception
             
-            return response.json()
+    #         return response.json()
 
-        except requests.exceptions.HTTPError as http_err:
-            logger.info(f'HTTP error: {http_err}')
-            raise 
-        except requests.exceptions.RequestException as req_error:
-            logger.info(f'Request error: {req_error}')
-            raise
+    #     except requests.exceptions.HTTPError as http_err:
+    #         logger.info(f'HTTP error: {http_err}')
+    #         raise 
+    #     except requests.exceptions.RequestException as req_error:
+    #         logger.info(f'Request error: {req_error}')
+    #         raise
             
 
 # test the function to make sure it fetches the right amount of data
