@@ -14925,3 +14925,150 @@ File Path                                          PID    Runtime      # DAGs   
 /opt/airflow/dags/open_weather_dag.py                                       1           0  0.36s           2025-03-20T07:11:56                      12
 /opt/airflow/dags/open_weather_historical_data.py                           1           0  0.22s           2025-03-20T07:11:57                      10
 ================================================================================
+[2025-03-20T23:39:03.257+0000] {manager.py:483} INFO - Processing files using up to 2 processes at a time 
+[2025-03-20T23:39:03.259+0000] {manager.py:484} INFO - Process each file at most once every 30 seconds
+[2025-03-20T23:39:03.259+0000] {manager.py:485} INFO - Checking for new files in /opt/airflow/dags every 300 seconds
+[2025-03-20T23:39:03.259+0000] {manager.py:821} INFO - Searching for files in /opt/airflow/dags
+[2025-03-20T23:39:03.274+0000] {manager.py:824} INFO - There are 3 files in /opt/airflow/dags
+[2025-03-20T23:39:03.644+0000] {manager.py:997} INFO - 
+================================================================================
+DAG File Processing Stats
+
+File Path                                            PID  Runtime      # DAGs    # Errors  Last Runtime    Last Run      Last # of DB Queries
+-------------------------------------------------  -----  ---------  --------  ----------  --------------  ----------  ----------------------
+/opt/airflow/dags/open_weather_historical_data.py     57  0.12s             0           0                                                   0
+/opt/airflow/dags/csv_uploader_dag.py                 56  0.15s             0           0                                                   0
+/opt/airflow/dags/open_weather_dag.py                                       0           0                                                   0
+================================================================================
+[2025-03-20T23:39:33.798+0000] {manager.py:997} INFO - 
+================================================================================
+DAG File Processing Stats
+
+File Path                                          PID    Runtime      # DAGs    # Errors  Last Runtime    Last Run               Last # of DB Queries
+-------------------------------------------------  -----  ---------  --------  ----------  --------------  -------------------  ----------------------
+/opt/airflow/dags/open_weather_historical_data.py                           1           0  4.50s           2025-03-20T23:39:07                      32
+/opt/airflow/dags/csv_uploader_dag.py                                       0           1  4.29s           2025-03-20T23:39:07                       3
+/opt/airflow/dags/open_weather_dag.py                                       1           0  0.83s           2025-03-20T23:39:08                      12
+================================================================================
+[2025-03-20T23:40:04.695+0000] {manager.py:997} INFO - 
+================================================================================
+DAG File Processing Stats
+
+File Path                                          PID    Runtime      # DAGs    # Errors  Last Runtime    Last Run               Last # of DB Queries
+-------------------------------------------------  -----  ---------  --------  ----------  --------------  -------------------  ----------------------
+/opt/airflow/dags/csv_uploader_dag.py                                       0           1  0.36s           2025-03-20T23:39:38                       5
+/opt/airflow/dags/open_weather_dag.py                                       1           0  0.24s           2025-03-20T23:39:39                      12
+/opt/airflow/dags/open_weather_historical_data.py                           1           0  0.24s           2025-03-20T23:39:38                      10
+================================================================================
+[2025-03-20T23:40:35.327+0000] {manager.py:997} INFO - 
+================================================================================
+DAG File Processing Stats
+
+File Path                                          PID    Runtime      # DAGs    # Errors  Last Runtime    Last Run               Last # of DB Queries
+-------------------------------------------------  -----  ---------  --------  ----------  --------------  -------------------  ----------------------
+/opt/airflow/dags/open_weather_historical_data.py                           1           0  0.81s           2025-03-20T23:40:09                      10
+/opt/airflow/dags/csv_uploader_dag.py                                       1           0  0.42s           2025-03-20T23:40:17                      43
+/opt/airflow/dags/open_weather_dag.py                                       1           0  0.30s           2025-03-20T23:40:09                      12
+================================================================================
+[2025-03-20T23:41:05.928+0000] {manager.py:997} INFO - 
+================================================================================
+DAG File Processing Stats
+
+File Path                                          PID    Runtime      # DAGs    # Errors  Last Runtime    Last Run               Last # of DB Queries
+-------------------------------------------------  -----  ---------  --------  ----------  --------------  -------------------  ----------------------
+/opt/airflow/dags/open_weather_historical_data.py                           1           0  0.78s           2025-03-20T23:40:41                      10
+/opt/airflow/dags/open_weather_dag.py                                       1           0  0.78s           2025-03-20T23:40:41                      12
+/opt/airflow/dags/csv_uploader_dag.py                                       1           0  0.42s           2025-03-20T23:40:47                      10
+================================================================================
+[2025-03-20T23:41:36.070+0000] {manager.py:997} INFO - 
+================================================================================
+DAG File Processing Stats
+
+File Path                                            PID  Runtime      # DAGs    # Errors  Last Runtime    Last Run               Last # of DB Queries
+-------------------------------------------------  -----  ---------  --------  ----------  --------------  -------------------  ----------------------
+/opt/airflow/dags/open_weather_historical_data.py                           1           0  0.60s           2025-03-20T23:41:11                      10
+/opt/airflow/dags/open_weather_dag.py                                       1           0  0.58s           2025-03-20T23:41:11                      12
+/opt/airflow/dags/csv_uploader_dag.py                103  0.48s             1           0  0.55s           2025-03-20T23:41:19                      10
+================================================================================
+[2025-03-20T23:42:06.727+0000] {manager.py:997} INFO - 
+================================================================================
+DAG File Processing Stats
+
+File Path                                            PID  Runtime      # DAGs    # Errors  Last Runtime    Last Run               Last # of DB Queries
+-------------------------------------------------  -----  ---------  --------  ----------  --------------  -------------------  ----------------------
+/opt/airflow/dags/csv_uploader_dag.py                112  0.01s             1           0  0.50s           2025-03-20T23:41:36                      10
+/opt/airflow/dags/open_weather_historical_data.py                           1           0  0.33s           2025-03-20T23:41:42                      10
+/opt/airflow/dags/open_weather_dag.py                                       1           0  0.33s           2025-03-20T23:41:42                      12
+================================================================================
+[2025-03-20T23:42:37.387+0000] {manager.py:997} INFO - 
+================================================================================
+DAG File Processing Stats
+
+File Path                                            PID  Runtime      # DAGs    # Errors  Last Runtime    Last Run               Last # of DB Queries
+-------------------------------------------------  -----  ---------  --------  ----------  --------------  -------------------  ----------------------
+/opt/airflow/dags/csv_uploader_dag.py                121  0.01s             1           0  0.45s           2025-03-20T23:42:07                      10
+/opt/airflow/dags/open_weather_historical_data.py                           1           0  0.31s           2025-03-20T23:42:13                      10
+/opt/airflow/dags/open_weather_dag.py                                       1           0  0.31s           2025-03-20T23:42:13                      12
+================================================================================
+[2025-03-20T23:43:08.225+0000] {manager.py:997} INFO - 
+================================================================================
+DAG File Processing Stats
+
+File Path                                            PID  Runtime      # DAGs    # Errors  Last Runtime    Last Run               Last # of DB Queries
+-------------------------------------------------  -----  ---------  --------  ----------  --------------  -------------------  ----------------------
+/opt/airflow/dags/csv_uploader_dag.py                130  0.02s             1           0  0.57s           2025-03-20T23:42:37                      10
+/opt/airflow/dags/open_weather_historical_data.py                           1           0  0.45s           2025-03-20T23:42:43                      10
+/opt/airflow/dags/open_weather_dag.py                                       1           0  0.44s           2025-03-20T23:42:43                      12
+================================================================================
+[2025-03-20T23:43:38.895+0000] {manager.py:997} INFO - 
+================================================================================
+DAG File Processing Stats
+
+File Path                                            PID  Runtime      # DAGs    # Errors  Last Runtime    Last Run               Last # of DB Queries
+-------------------------------------------------  -----  ---------  --------  ----------  --------------  -------------------  ----------------------
+/opt/airflow/dags/csv_uploader_dag.py                139  0.03s             1           0  0.49s           2025-03-20T23:43:08                      10
+/opt/airflow/dags/open_weather_dag.py                                       1           0  0.31s           2025-03-20T23:43:14                      12
+/opt/airflow/dags/open_weather_historical_data.py                           1           0  0.29s           2025-03-20T23:43:14                      10
+================================================================================
+[2025-03-20T23:44:03.463+0000] {manager.py:821} INFO - Searching for files in /opt/airflow/dags
+[2025-03-20T23:44:03.472+0000] {manager.py:824} INFO - There are 3 files in /opt/airflow/dags
+[2025-03-20T23:44:09.548+0000] {manager.py:997} INFO - 
+================================================================================
+DAG File Processing Stats
+
+File Path                                            PID  Runtime      # DAGs    # Errors  Last Runtime    Last Run               Last # of DB Queries
+-------------------------------------------------  -----  ---------  --------  ----------  --------------  -------------------  ----------------------
+/opt/airflow/dags/csv_uploader_dag.py                148  0.01s             1           0  0.43s           2025-03-20T23:43:39                      10
+/opt/airflow/dags/open_weather_historical_data.py                           1           0  0.29s           2025-03-20T23:43:45                      10
+/opt/airflow/dags/open_weather_dag.py                                       1           0  0.27s           2025-03-20T23:43:45                      12
+================================================================================
+[2025-03-20T23:44:40.248+0000] {manager.py:997} INFO - 
+================================================================================
+DAG File Processing Stats
+
+File Path                                          PID    Runtime      # DAGs    # Errors  Last Runtime    Last Run               Last # of DB Queries
+-------------------------------------------------  -----  ---------  --------  ----------  --------------  -------------------  ----------------------
+/opt/airflow/dags/csv_uploader_dag.py                                       1           0  0.47s           2025-03-20T23:44:19                      10
+/opt/airflow/dags/open_weather_historical_data.py                           1           0  0.35s           2025-03-20T23:44:15                      10
+/opt/airflow/dags/open_weather_dag.py                                       1           0  0.35s           2025-03-20T23:44:15                      12
+================================================================================
+[2025-03-20T23:45:10.285+0000] {manager.py:997} INFO - 
+================================================================================
+DAG File Processing Stats
+
+File Path                                          PID    Runtime      # DAGs    # Errors  Last Runtime    Last Run               Last # of DB Queries
+-------------------------------------------------  -----  ---------  --------  ----------  --------------  -------------------  ----------------------
+/opt/airflow/dags/open_weather_historical_data.py                           1           0  0.70s           2025-03-20T23:44:47                      10
+/opt/airflow/dags/open_weather_dag.py                                       1           0  0.69s           2025-03-20T23:44:47                      12
+/opt/airflow/dags/csv_uploader_dag.py                                       1           0  0.28s           2025-03-20T23:44:50                      10
+================================================================================
+[2025-03-20T23:45:40.368+0000] {manager.py:997} INFO - 
+================================================================================
+DAG File Processing Stats
+
+File Path                                          PID    Runtime      # DAGs    # Errors  Last Runtime    Last Run               Last # of DB Queries
+-------------------------------------------------  -----  ---------  --------  ----------  --------------  -------------------  ----------------------
+/opt/airflow/dags/open_weather_dag.py                                       1           0  0.82s           2025-03-20T23:45:18                      12
+/opt/airflow/dags/open_weather_historical_data.py                           1           0  0.80s           2025-03-20T23:45:18                      10
+/opt/airflow/dags/csv_uploader_dag.py                                       1           0  0.30s           2025-03-20T23:45:21                      10
+================================================================================

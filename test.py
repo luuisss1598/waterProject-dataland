@@ -1,122 +1,145 @@
-# from sqlalchemy import create_engine
-# from utils.load_variables import get_env
-# import pandas as pd
-# from utils.logging_config import logger
-
-# password = get_env('NEON_POSTGRES_PASSWORD')
-# user = get_env('NEON_POSTGRES_USER')
-# host = get_env('NEON_POSTGRES_HOST')
-# port = get_env('NEON_POSTGRES_PORT')
-# database = get_env('NEON_POSTGRES_DB_INGEST')
-
-# schema_name = 'open_weather_api'
-# table_name = 'temp_open_weather_api_historical_hourly'
-
-# conn_str = f'postgresql+psycopg2://{user}:{password}@{host}:{port}/{database}'
-# engine = create_engine(conn_str)
-
-# df = pd.read_csv('./data/raw/open_weather_historical_data.csv')
-# df = df.head(n=100)
-
-# # print(pd.io.sql.get_schema(df, name=table_name, con=engine), index=False)
-
-# df.to_sql(name=table_name, schema=schema_name, con=engine, if_exists='replace', index=False)
-# logger.info('Data laoded into table...')
-
-from utils.logging_config import logger
-import json
 from utils.load_variables import get_env
-from sqlalchemy import create_engine
-import os
+from utils.logging_config import logger
+from datetime import datetime, timedelta
 import pandas as pd
+from sqlalchemy import create_engine, text
+import os
+import uuid
 import time
+from typing import Any, Dict
+import json 
 
+
+source_csv_path = './data/raw/open_weather_historical_data.csv'
 temp_storage_path = './data/tmp/airflow'
+batch_size = 25000
 schema_name = 'open_weather_api'
 table_name = 'temp_open_weather_api_historical_hourly'
 
-def load_batches_to_postgres(**context):
-    try: 
-        # meta_data =  context['ti'].xcom_pull(task_ids='split_csv_file')
-        meta_data = {
-            "batch_files": {
-                0: "./data/tmp/airflow/run_4062f7b7-bef5-498a-ab46-8159fa1c936e/batch_0000.csv",
-                1: "./data/tmp/airflow/run_4062f7b7-bef5-498a-ab46-8159fa1c936e/batch_0001.csv",
-                2: "./data/tmp/airflow/run_4062f7b7-bef5-498a-ab46-8159fa1c936e/batch_0002.csv",
-                3: "./data/tmp/airflow/run_4062f7b7-bef5-498a-ab46-8159fa1c936e/batch_0003.csv",
-                4: "./data/tmp/airflow/run_4062f7b7-bef5-498a-ab46-8159fa1c936e/batch_0004.csv",
-                5: "./data/tmp/airflow/run_4062f7b7-bef5-498a-ab46-8159fa1c936e/batch_0005.csv",
-                6: "./data/tmp/airflow/run_4062f7b7-bef5-498a-ab46-8159fa1c936e/batch_0006.csv",
-                7: "./data/tmp/airflow/run_4062f7b7-bef5-498a-ab46-8159fa1c936e/batch_0007.csv",
-                8: "./data/tmp/airflow/run_4062f7b7-bef5-498a-ab46-8159fa1c936e/batch_0008.csv",
-                9: "./data/tmp/airflow/run_4062f7b7-bef5-498a-ab46-8159fa1c936e/batch_0009.csv",
-                10 :"./data/tmp/airflow/run_4062f7b7-bef5-498a-ab46-8159fa1c936e/batch_0010.csv",
-                11 :"./data/tmp/airflow/run_4062f7b7-bef5-498a-ab46-8159fa1c936e/batch_0011.csv",
-                12 :"./data/tmp/airflow/run_4062f7b7-bef5-498a-ab46-8159fa1c936e/batch_0012.csv",
-                13 :"./data/tmp/airflow/run_4062f7b7-bef5-498a-ab46-8159fa1c936e/batch_0013.csv",
-                14 :"./data/tmp/airflow/run_4062f7b7-bef5-498a-ab46-8159fa1c936e/batch_0014.csv",
-                15 :"./data/tmp/airflow/run_4062f7b7-bef5-498a-ab46-8159fa1c936e/batch_0015.csv",
-                16 :"./data/tmp/airflow/run_4062f7b7-bef5-498a-ab46-8159fa1c936e/batch_0016.csv",
-            },
-            "run_id":"4062f7b7-bef5-498a-ab46-8159fa1c936e",
-            "total_batches": 17
-        }
-        
-        if meta_data is None:
-            logger.error(f'Metadata is empty: {json.dumps(meta_data, indent=4)}')
-            raise
+raw_data_source_file_path = './data/raw/open_weather_historical_data.csv'
+
+"""
+1. create unique id for temp folder -> run_id
+2. join raw_data_source_file_path with run_id
+3. make sure to create or check if previous dir exist
+4. create chunk iterator, initlize batch files
+"""
+
+def split_csv_into_batches(raw_data_source_file_path: str, temp_storage_path: str, batch_zie: int) -> Dict:
+    logger.info('Create unique temp folder for data...')
+    run_id = str(uuid.uuid4())
+    run_id_dir = os.path.join(temp_storage_path, f'run_{run_id}')
+
+    os.makedirs(run_id_dir)
+
+    logger.info(f'Splitting CSV files in batches of size: {batch_size} rows')
+    chunk_iterator = pd.read_csv(raw_data_source_file_path, chunksize=batch_size)
+    batch_files = [] # track all files created after splitting csv file
+
+    for i, chunk in enumerate(chunk_iterator):
+        batch_file = os.path.join(run_id_dir, f'batch_{i:04d}.csv')
+        chunk.to_csv(batch_file, index=False)
+        batch_files.append(batch_file)
+        logger.info(f'Saved batch {i} with {len(chunk)} rows to {batch_file}')
+
+    metadata = {
+        'run_id': run_id,
+        'batch_files': batch_files,
+        'total_batches': len(batch_files)
+    }
+
+    return metadata
+
+def load_batches_into_postgres(meta_data: dict, schema_name: str, table_name: str) -> Dict:
+    try:
+        if not meta_data:
+            msg_exception = f'Metadata is empty {meta_data}'
+            logger.info(msg_exception)
+            raise ValueError(msg_exception)
     except Exception as err:
-        logger.error(f'Metadata is empty: {err}')
+        logger.info(f'Metadata is empty: {err}')
         raise
     
-    # get run_dir path
-    run_dir = os.path.join(temp_storage_path, f'run_{meta_data["run_id"]}')
-    
-    # logger.info(f'Pulled metadata: {json.dumps(meta_data, indent=4)}')
     logger.info(f'Pulled metadata')
+
+    # re-construct file path again
+    run_dir = os.path.join(temp_storage_path, f"run_{meta_data['run_id']}")
     
     password = get_env('NEON_POSTGRES_PASSWORD')
     user = get_env('NEON_POSTGRES_USER')
     host = get_env('NEON_POSTGRES_HOST')
     port = get_env('NEON_POSTGRES_PORT')
     database = get_env('NEON_POSTGRES_DB_INGEST')
-    
-    # connection string needed to pass into engine to connect to postgres
+
     conn_str = f'postgresql+psycopg2://{user}:{password}@{host}:{port}/{database}'
-    
+
     engine = create_engine(conn_str)
-    
+
     with engine.connect() as conn:
         try:
             conn.execute('select 1')
             logger.info('Connection was successful...')
         except Exception as err:
-            logger.error('Connection Failed: {err}')
+            logger.error(f'Error connecting to database: {err}')
             raise
-    
+
     start_time = time.time()
-    logger.info(f'Starting batch loading into Postgres...')
-    total_files_read = 0
+    logger.info(f"Starting batch loading into Postgres, total batches: {meta_data['total_batches']}")
+    total_files_loaded = 0
+
     for root, dirs, files in os.walk(run_dir):
-        # make sure to sort files from 00 to len(files)-1
-        for file in sorted(files):
-            full_path = os.path.join(root, file)
-            df = pd.read_csv(full_path)
+        for file in files:
+            full_file_path = os.path.join(root, file)
+            total_files_loaded += 1
+
+    logger.info(f'Total batches loaded into postgres: {total_files_loaded}')
+
+    return meta_data
+
+
+def clean_up(meta_data: dict) -> Dict:
+    try: 
+        if not meta_data:
+            msg_exception = f'Metadata is empty {meta_data}'
+            logger.info(msg_exception)
+            raise ValueError(msg_exception)
+    except Exception as err:
+        logger.info(f'Metadata is empty: {err}')
+        raise
+
+    load_run_id = meta_data['run_id']
+    batch_files_removed = []
+    total_files_removed = 0
+    # make sure run id exist in dict
+    if load_run_id:
+        root_dir = os.path.join(temp_storage_path, f'run_{load_run_id}')
+
+        logger.info(f'Initializing removal of temp files...')
+        for root, dirs, files in os.walk(root_dir):
+            # go file by file in the dir
+            for file in files:
+                os.remove(os.path.join(root, file))
+                logger.info(f'File {file} removed from {root}')
+                total_files_removed += 1
+                batch_files_removed.append(file)
             
-            try:
-                df.to_sql(name=table_name, schema=schema_name, con=engine, if_exists='append', index=False)
-                logger.info(f'{len(df)} rows ingested from batch {file} into table {table_name}')
-            except Exception as err:
-                logger.info(f'Failed to load data to Postgres: {err}')
-                raise
-            
-            total_files_read += 1
-                        
-    end_time = time.time()
-    elapsed_time = (end_time-start_time)
-    logger.info(f'Total files loaded into Postgres db: {total_files_read}')
-    logger.info(f'Time timen to ingest data: {elapsed_time}s')
+            os.rmdir(root)
+            logger.info(f'Root with run_id run_{load_run_id} removed...')
+
+    metadata_clean = {
+        'root dir': f'{temp_storage_path}/run_{load_run_id}',
+        'files_removed': sorted(batch_files_removed),
+        'total_files_removed': total_files_removed
+    }
+
+    return metadata_clean
+
     
-    return 'Data has been loaded into Postgres DB...'
-    
-load_batches_to_postgres()
+
+
+metadata1 = split_csv_into_batches(raw_data_source_file_path=raw_data_source_file_path, temp_storage_path=temp_storage_path, batch_zie=batch_size)
+metadata_load = load_batches_into_postgres(meta_data=metadata1, schema_name=schema_name, table_name=table_name)
+metadata_clean = clean_up(meta_data=metadata_load)
+
+print(json.dumps(metadata_clean, indent=4))
+
