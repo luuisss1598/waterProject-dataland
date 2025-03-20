@@ -2,26 +2,26 @@ from airflow import DAG
 from airflow.operators.python import PythonOperator
 from utils.load_variables import get_env
 from utils.logging_config import logger
-import json 
 from datetime import datetime, timedelta
 import pandas as pd
 from sqlalchemy import create_engine, text
 import os
 import uuid
+import time
 
-
+# basics configurations for the batch processing
 source_csv_path = './data/raw/open_weather_historical_data.csv'
 temp_storage_path = './data/tmp/airflow'
 batch_size = 25000
-schema_name = ''
-table_name = ''
+schema_name = 'open_weather_api'
+table_name = 'temp_open_weather_api_historical_hourly'
 
 raw_data_file_path = './data/raw/open_weather_historical_data.csv'
 
 """
 1. define temp files in order to store data and load into
 2. will break the csv files into chunks, perhaps 50k at a time
-3. The way xcom works is by pushing and pulling data, small amount of data like metadata. task_ids refers to the task id create in the python operator,
+3. the way xcom works is by pushing and pulling data, small amount of data like metadata. task_ids refers to the task id create in the python operator,
     on the othe hand, you can also return the data from the function and it'll show up in the xcom tab.
 """
 
@@ -51,8 +51,22 @@ def split_csv_into_batches(**context):
     return metadata
 
 def load_batches_to_postgres(**context):
-    meta_data =  context['ti'].xcom_pull(task_ids='split_csv_file')
-    logger.info(f'Pulled metadata: {json.dumps(meta_data, indent=4)}')
+    try:
+        # pulled metadata from xcom and make sure is not empty
+        meta_data =  context['ti'].xcom_pull(task_ids='split_csv_file')
+        
+        if meta_data is None:
+            logger.error(f'Metadata is empty: {meta_data}')
+            raise
+    except Exception as err:
+        logger.error(f'Metadata is empty: {err}')
+        raise
+    
+    # get run_dir path
+    run_dir = os.path.join(temp_storage_path, f'run_{meta_data["run_id"]}')
+    
+    # logger.info(f'Pulled metadata: {json.dumps(meta_data, indent=4)}')
+    logger.info(f'Pulled metadata')
     
     password = get_env('NEON_POSTGRES_PASSWORD')
     user = get_env('NEON_POSTGRES_USER')
@@ -60,18 +74,50 @@ def load_batches_to_postgres(**context):
     port = get_env('NEON_POSTGRES_PORT')
     database = get_env('NEON_POSTGRES_DB_INGEST')
     
+    # connection string needed to pass into engine to connect to postgres
     conn_str = f'postgresql+psycopg2://{user}:{password}@{host}:{port}/{database}'
     
     engine = create_engine(conn_str)
     
+    with engine.connect() as conn:
+        try:
+            conn.execute('select 1')
+            logger.info('Connection was successful...')
+        except Exception as err:
+            logger.error('Connection Failed: {err}')
+            raise
     
+    start_time = time.time()
+    logger.info(f'Starting batch loading into Postgres...')
+    total_files_read = 0
+    for root, dirs, files in os.walk(run_dir):
+        # make sure to sort files from 00 to len(files)-1
+        for file in sorted(files):
+            full_path = os.path.join(root, file)
+            df = pd.read_csv(full_path)
+            
+            try:
+                df.to_sql(name=table_name, schema=schema_name, con=engine, if_exists='append', index=False)
+                logger.info(f'{len(df)} rows ingested from batch {file} into table {table_name}')
+            except Exception as err:
+                logger.info(f'Failed to load data to Postgres: {err}')
+                raise
+            
+            total_files_read += 1
+                        
+    end_time = time.time()
+    elapsed_time = (end_time-start_time)
+    logger.info(f'Total files loaded into Postgres db: {total_files_read}')
+    logger.info(f'Time timen to ingest data: {elapsed_time}s')
     
+    # i need to return metadata in order to find run_id directory and clean/remove/delete temp files
     return meta_data
 
 
 def clean_up(**context):
     load_result = context['ti'].xcom_pull(task_ids='load_to_postgres')
 
+    logger.info('Starting cleanup process...')
     if load_result and 'run_id' in load_result:
         run_dir = os.path.join(temp_storage_path, f'run_{load_result['run_id']}')
 
@@ -80,7 +126,9 @@ def clean_up(**context):
                 os.remove(os.path.join(root, file))
 
         os.rmdir(run_dir)
-
+        
+    logger.info('Cleanup process finalized...')
+    
     return load_result['run_id']
 
 default_args = {

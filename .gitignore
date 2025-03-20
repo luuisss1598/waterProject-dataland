@@ -2,5 +2,4 @@
 __pycache__/
 .dist
 tempCodeRunnerFile.py
-logs/*
-!logs/.gitkeep
+logs/
