@@ -8,6 +8,7 @@ import uuid
 import time
 from typing import Any, Dict
 import json 
+import re
 
 
 source_csv_path = './data/raw/open_weather_historical_data.csv'
@@ -16,7 +17,8 @@ batch_size = 25000
 schema_name = 'open_weather_api'
 table_name = 'temp_open_weather_api_historical_hourly'
 
-raw_data_source_file_path = './data/raw/open_weather_historical_data.csv'
+# raw_data_source_file_path = './data/raw/open_weather_historical_data.csv'
+raw_data_source_file_path = './data/raw/station_5.csv'
 
 """
 1. create unique id for temp folder -> run_id
@@ -134,12 +136,23 @@ def clean_up(meta_data: dict) -> Dict:
 
     return metadata_clean
 
+
+def refactor_columns_name(raw_data: str) -> pd.DataFrame:
+    df = pd.read_csv(raw_data)
     
+    # replace non-alpha charactes with lower case
+    df.columns = [re.sub(r'\W+', '_', col) for col in df.columns]
 
+    return df
+    
+columns_names = refactor_columns_name(raw_data=raw_data_source_file_path)
 
-metadata1 = split_csv_into_batches(raw_data_source_file_path=raw_data_source_file_path, temp_storage_path=temp_storage_path, batch_zie=batch_size)
-metadata_load = load_batches_into_postgres(meta_data=metadata1, schema_name=schema_name, table_name=table_name)
-metadata_clean = clean_up(meta_data=metadata_load)
+for i in columns_names.columns:
+    print(i)
 
-print(json.dumps(metadata_clean, indent=4))
+# metadata1 = split_csv_into_batches(raw_data_source_file_path=raw_data_source_file_path, temp_storage_path=temp_storage_path, batch_zie=batch_size)
+# metadata_load = load_batches_into_postgres(meta_data=metadata1, schema_name=schema_name, table_name=table_name)
+# metadata_clean = clean_up(meta_data=metadata_load)
+
+# print(json.dumps(metadata_clean, indent=4))
 

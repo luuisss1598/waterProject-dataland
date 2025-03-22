@@ -48,6 +48,15 @@ def load_batches_into_postgres(meta_data: dict, temp_storage_path:str, schema_na
     for root, dirs, files in os.walk(run_dir):
         for file in files:
             full_file_path = os.path.join(root, file)
+            df = pd.read_csv(full_file_path) # read batched data into dataframe
+
+            try:
+                df.to_sql(name=table_name, schema=schema_name, con=engine, if_exists='append', index=False)
+                logger.info(f'{len(df)} rows ingested from batch {file} into table {table_name}')
+            except Exception as err:
+                logger.info(f'Failed to load data to Postgres: {err}')
+                raise
+            
             total_files_loaded += 1
     
     end_time = time.time()
