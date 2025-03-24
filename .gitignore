@@ -5,3 +5,4 @@ tempCodeRunnerFile.py
 logs/
 test.py
 test_system_metrics.py
+data/raw/*
