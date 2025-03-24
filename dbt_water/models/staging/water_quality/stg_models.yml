@@ -1,0 +1,17 @@
+version: 2
+
+models:
+  - name: stg_water_quality_field_results
+    description: "Staged water quality data from ca.gov regarding field results."
+
+  - name: stg_water_quality_stations
+    description: "Staged water quality data from ca.gov regarding stations."
+    columns:
+      - name: station_id
+        description: "Id correspoding to station in which results were taken."
+        tests:
+          - not_null
+      - name: station_name
+        description: "Name correspoding to station in which results were taken."
+        tests:
+          - not_null
