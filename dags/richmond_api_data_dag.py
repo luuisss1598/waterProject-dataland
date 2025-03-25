@@ -165,7 +165,38 @@ def load_richmond_catalog_api(task_id: str, table_name: str, schema_name: str, *
     }
 
 def clean_up_temp_files(**context):
-    pass
+    ti = context['ti']
+    
+    t1 = ti.xcom_pull(task_ids='load_water_consumption')
+    t2 = ti.xcom_pull(task_ids='load_single_family_water_consumption')
+    t3 = ti.xcom_pull(task_ids='load_richmond_water_consumption_data')
+    t4 = ti.xcom_pull(task_ids='load_municipal_family_utility_usage')
+    t5 = ti.xcom_pull(task_ids='load_multi_family_water_consumption')
+
+    # centralized returned metadata from all loading tasks
+    loading_tasks_metadata = [t1, t2, t3, t4, t5]
+    temp_files_removed = []
+    for task_id in loading_tasks_metadata:
+        # i need to iterate through the keys first
+        for key in task_id.keys():
+            raw_temp_file_path= task_id[key]['raw_file_path']
+            transformed_temp_file_path= task_id[key]['transformed_file_path']
+
+            os.remove(raw_temp_file_path)
+            os.remove(transformed_temp_file_path)
+            
+            # create a dict of tuples, perfect match for both files and key being intial task id from extraction
+            temp_key_file_dict = {
+                key: (raw_temp_file_path, transformed_temp_file_path)
+            }
+
+            temp_files_removed.append(temp_key_file_dict)
+
+    return {
+        'files_removed': temp_files_removed
+    }
+
+
 
 with DAG(
     'ingest_richmond_api_data',
@@ -242,13 +273,56 @@ with DAG(
         }
     )
 
-    clean_up_all_temp_files_task = EmptyOperator(
-        task_id='clean_up_all_temp_files'
+    load_richmond_water_consumption_data_task = PythonOperator(
+        task_id='load_richmond_water_consumption_data',
+        python_callable=load_richmond_catalog_api,
+        op_kwargs={
+            'task_id': 'extract_richmond_water_consumption_data',
+            'table_name': 'raw_richmond_water_consumption_data',
+            'schema_name': f'{SCHEMA_NAME}'
+        }
     )
 
+    load_municipal_family_utility_usage_task = PythonOperator(
+        task_id='load_municipal_family_utility_usage',
+        python_callable=load_richmond_catalog_api,
+        op_kwargs={
+            'task_id': 'extract_municipal_family_utility_usage',
+            'table_name': 'raw_municipal_family_utility_usage',
+            'schema_name': f'{SCHEMA_NAME}'
+        }
+    )
 
-    [
+    load_multi_family_water_consumption_task = PythonOperator(
+        task_id='load_multi_family_water_consumption',
+        python_callable=load_richmond_catalog_api,
+        op_kwargs={
+            'task_id': 'extract_multi_family_water_consumption',
+            'table_name': 'raw_multi_family_water_consumption',
+            'schema_name': f'{SCHEMA_NAME}'
+        }
+    )
+
+    clean_up_all_temp_files_task = PythonOperator(
+        task_id='clean_up_all_temp_files',
+        python_callable=clean_up_temp_files
+    )
+
+    # group all extract tasks
+    extract_tasks =   [
         water_consumption_task, single_family_water_consumption_task, 
         richmond_water_consumption_data_task, municipal_family_utility_usage_task, 
         multi_family_water_consumption_task
-    ] >> transform_all_data_sources_task >> [load_water_consumption_task, load_single_family_water_consumption_task] >> clean_up_all_temp_files_task
+    ]
+
+    # group all load tasks
+    load_tasks = [
+        load_water_consumption_task, 
+        load_single_family_water_consumption_task, 
+        load_richmond_water_consumption_data_task, 
+        load_multi_family_water_consumption_task, 
+        load_municipal_family_utility_usage_task
+    ]
+
+    # final definition for pipeline
+    extract_tasks >> transform_all_data_sources_task >> load_tasks >> clean_up_all_temp_files_task;
