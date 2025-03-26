@@ -1,5 +1,5 @@
 version: 2
-source:
+sources:
     - name: richmond_water
       database: ingest
       schema: richmond_water_data

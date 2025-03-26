@@ -40,6 +40,10 @@ models:
       # +database: raw_data
       +schema: staging
 
+    marts:
+      +materialized: table
+      +schema: marts
+
     intermediate:
       +materialized: table
       # +database: transformed_data

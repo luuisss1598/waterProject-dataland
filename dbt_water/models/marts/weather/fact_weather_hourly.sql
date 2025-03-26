@@ -1,0 +1,37 @@
+{{
+    config(
+        alias='weather_hourly'
+    )
+}}
+
+select 
+    _pk, 
+    date_utc, 
+    timezone, 
+    city_name, 
+    state_name, 
+    latitude, 
+    longitude, 
+    temperature_fahrenheit, 
+    visibility, 
+    dew_point, 
+    feels_like_f, 
+    temp_min_f, 
+    temp_max_f, 
+    pressure, 
+    sea_level, 
+    grnd_level, 
+    humidity, 
+    wind_speed, 
+    wind_deg, 
+    wind_gust, 
+    rain_1h, 
+    rain_3h, 
+    snow_1h, 
+    snow_3h, 
+    clouds_all, 
+    weather_id, 
+    weather_main, 
+    weather_description, 
+    weather_icon
+from {{ ref('stg_owa_open_weather_api_historical_hourly') }}
