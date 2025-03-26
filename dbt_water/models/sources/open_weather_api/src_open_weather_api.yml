@@ -1,7 +1,10 @@
-# version: 2
-# sources:
-#   - database:
-#   - schema:
-#   - tables:
-#     - name:
-#       description: 
+version: 2
+sources:
+    - name: open_weather
+      database: ingest
+      schema: open_weather_api
+      tables:
+          - name: open_weather_api_5min
+            description: "Weather data from Richmond, Ca, being captured every 5 mins."
+          - name: open_weather_api_historical_hourly
+            description: "Historical hourly weather data from Richmond, Ca."

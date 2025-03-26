@@ -1,0 +1,20 @@
+version: 2
+source:
+    - name: richmond_water
+      database: ingest
+      schema: richmond_water_data
+      tables:
+          - name: raw_multi_family_water_consumption
+            description: "Water consumption data in Richmond, Ca"
+
+          - name: raw_municipal_family_utility_usage
+            description: "Data describing water utility usage for families in the municipal"
+
+          - name: raw_richmond_water_consumption_data
+            description: "Water Consumption in Richmond, Ca"
+
+          - name: raw_water_consumption
+            description: "Water Consumption in Richmond, Ca"
+
+          - name: raw_single_family_water_consumption
+            description: "Single famility water consumption in Richmond, Ca"

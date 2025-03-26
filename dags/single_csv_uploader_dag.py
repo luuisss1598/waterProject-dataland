@@ -41,7 +41,7 @@ def load_batches_to_db(**context):
 
     metadata = ti.xcom_pull(task_ids='split_data')
 
-    metadata_load = load_batches_into_postgres(
+    metadata_load: dict = load_batches_into_postgres(
         meta_data=metadata,
         temp_storage_path=TEMP_STORAGE_PATH,
         schema_name=SCHEMA_NAME,
@@ -54,7 +54,7 @@ def clean_up_dic(**context):
     ti = context['ti']
     metadata = ti.xcom_pull(task_ids='load_data')
 
-    metadata_clean = clean_up(
+    metadata_clean: dict = clean_up(
         meta_data=metadata,
         temp_storage_path=TEMP_STORAGE_PATH
     )

@@ -1,6 +1,5 @@
-# version: 2
+version: 2
 
-# models:
-#   - names:
-#     description:
-    
+models:
+    - name: stg_owa_open_weather_api_historical_hourly
+    - name: stg_owa_open_weather_api_5min

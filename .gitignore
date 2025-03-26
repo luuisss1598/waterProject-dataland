@@ -6,3 +6,5 @@ logs/
 test.py
 test_system_metrics.py
 data/raw/*
+logs/
+!logs/.gitkeep

@@ -1,0 +1,8 @@
+version: 2
+
+models:
+    - name: stg_rca_multi_family_water_consumption      
+    - name: stg_rca_municipal_family_utility_usage
+    - name: stg_rca_richmond_water_consumption_data
+    - name: stg_rca_single_family_water_consumption
+    - name: stg_rca_water_consumption
