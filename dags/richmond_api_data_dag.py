@@ -40,13 +40,22 @@ def extract_richmond_catalog_api(api_endpoint: str, **context):
     run_id = str(uuid.uuid4()) # create unique_id for temp json file
     run_id_file_path = os.path.join(TEMP_STORAGE_PATH, f'run_{run_id}.json')
     
-    response = requests.get(url=api_endpoint, timeout=5)
-    data = response.json()
-    
-    # create dataframe
-    df = pd.DataFrame(data)
-    
-    # create the file, the return all metadata for file
+    try:
+        logger.info('Sending request to API...')
+        response = requests.get(url=api_endpoint, timeout=10)
+        response.raise_for_status() # raise exception if not 200 status code
+        
+        logger.info('API call was successful...')
+        data = response.json()
+        
+        # create dataframe
+        logger.info('Creating dataframe for data...')
+        df = pd.DataFrame(data)
+    except requests.exceptions.HTTPError as http_err:
+        logger.error(f'HTTP error: {http_err}')
+        raise
+        
+    logger.info('Dumping data into json file...')
     df.to_json(run_id_file_path,index=False)
     
     metadata_api = {
@@ -61,6 +70,7 @@ def transform_richmond_catalog_api(**context):
     """----------------------- load metadata from xcom -----------------------"""
     ti = context['ti']
     
+    logger.info('Extracting XCOM metadata...')    
     t1 = ti.xcom_pull(task_ids='extract_water_consumption')
     t2 = ti.xcom_pull(task_ids='extract_single_family_water_consumption')
     t3 = ti.xcom_pull(task_ids='extract_richmond_water_consumption_data')
@@ -73,23 +83,27 @@ def transform_richmond_catalog_api(**context):
     """----------------------- transform json into csv -----------------------"""
     
     # transformed_metadata = {} # for future reference, we can create metadata in the for-loop, just need to pass task_id
-
+    logger.info('Starting transformation process...')
     for task in extract_tasks_metadata:
         run_id = str(uuid.uuid4())
         raw_run_id_file_path:str = task['raw_file_path']
         transformed_run_id_file_path:str = os.path.join(TEMP_STORAGE_PATH, f'run_{run_id}.csv')
         
         # transform into dataframe 
+        logger.info('Transforming json data into dataframe...')
         df = pd.read_json(raw_run_id_file_path)
 
         # dump into csv file, drop index
+        logger.info('Transforming datframe into csv file...')
         df.to_csv(transformed_run_id_file_path, index=False)
 
         # append transformed file to t1, t2, t+1
+        logger.info('Creating metadata...')
         task['transformed_file_path'] = transformed_run_id_file_path
         task['transformed_run_id'] = run_id
 
     """----------------------- return new metadata for loading -----------------------"""
+    logger.info('Transforming has been completed..')
     return {
         'extract_water_consumption': t1,
         'extract_single_family_water_consumption': t2,
@@ -100,6 +114,7 @@ def transform_richmond_catalog_api(**context):
     
 def load_richmond_catalog_api(task_id: str, table_name: str, schema_name: str, **context):
     """----------------------- load all metadata returned by transformation -----------------------"""
+    logger.info('Extracting XCOM metadata...')    
     ti = context['ti']
     transformed_metadata = ti.xcom_pull(task_ids='transform_all_data_sources')
 
@@ -114,6 +129,7 @@ def load_richmond_catalog_api(task_id: str, table_name: str, schema_name: str, *
     port = get_env('NEON_POSTGRES_PORT')
     database = get_env('NEON_POSTGRES_DB_INGEST')
 
+    logger.info('Creating database connection to Postgres...')    
     conn_str = f'postgresql+psycopg2://{user}:{password}@{host}:{port}/{database}'
 
     engine = create_engine(conn_str)

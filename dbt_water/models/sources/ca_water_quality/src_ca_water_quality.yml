@@ -1,20 +1,18 @@
 version: 2
 
 sources:
-  - name: ca_water_quality
-    database: ingest
-    schema: water_quality
-    tables:
-      - name: raw_water_quality_field_results
-        # description: 
+    - name: ca_water_quality
+      database: ingest
+      schema: water_quality
+      tables:
+          - name: raw_water_quality_field_results
+            # description:
 
-      - name: raw_water_quality_lab_results
-        # description: 
+          - name: raw_water_quality_lab_results
+            # description:
 
+          - name: raw_water_quality_period_of_record
+            # description:
 
-      - name: raw_water_quality_period_of_record
-        # description: 
-
-
-      - name: raw_water_quality_stations
-        # description: 
+          - name: raw_water_quality_stations
+            # description:
