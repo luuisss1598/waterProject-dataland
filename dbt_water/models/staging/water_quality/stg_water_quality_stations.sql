@@ -1,11 +1,4 @@
-{{
-    config(
-        materialized = 'view'
-    )
-}}
-
-
-with raw_data as (
+with src as (
      select
         station_id::varchar as station_id,
         station_name::varchar as station_name,
@@ -32,4 +25,4 @@ select
     sample_count,
     sample_date_min,
     sample_date_max
-from raw_data
+from src

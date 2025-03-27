@@ -31,6 +31,14 @@ with src as (
         weather_icon::varchar as weather_icon
     from {{ source('open_weather', 'open_weather_api_historical_hourly') }}
 )
+, convert_utc_to_pst as (
+    select 
+        _pk,
+        date_utc at time zone 'utc' at time zone 'america/los_angeles' as date_pst
+    from src
+)
 select
-    *
-from src
+    s.*,
+    cutp.date_pst
+from src as s
+join convert_utc_to_pst as cutp on s._pk=cutp._pk

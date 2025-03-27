@@ -1,0 +1,6 @@
+version: 2
+models:
+  - name: fact_water_consumption
+    description: "General water consumption across different sectors in Richmond, Ca, throughout time."
+  - name: fact_municipal_family_utility_usage
+    description: "Family tility usage data from the municipial."

@@ -1,0 +1,4 @@
+version: 2
+models:
+  - name: dim_calendar
+    description: "Date dimension table with attributes for reporting and analytics"
