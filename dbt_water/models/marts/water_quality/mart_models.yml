@@ -1,0 +1,4 @@
+version: 2
+models:
+  - name: fact_water_quality
+    description: "Water quality data tested in lab."

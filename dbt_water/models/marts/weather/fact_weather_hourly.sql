@@ -33,5 +33,6 @@ select
     weather_id, 
     weather_main, 
     weather_description, 
-    weather_icon
+    weather_icon,
+    date_pst
 from {{ ref('stg_owa_open_weather_api_historical_hourly') }}
